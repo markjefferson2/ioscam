@@ -3,7 +3,13 @@ name: Build unsigned iOS IPA
 on:
   push:
     branches: ["master", "main", "feature/**"]
+    paths:
+      - "ios/**"
+      - ".github/workflows/build-ios.yml"
   pull_request:
+    paths:
+      - "ios/**"
+      - ".github/workflows/build-ios.yml"
   workflow_dispatch:
 
 permissions:

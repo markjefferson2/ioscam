@@ -1,0 +1,40 @@
+name: Feature request / Идея
+description: Suggest an IosCam improvement / Предложить улучшение
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: "Describe the use case first. Сначала опишите сценарий, а не только желаемую кнопку."
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Задача
+      description: What workflow is difficult today? Что сейчас неудобно?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution / Предлагаемое решение
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area / Область
+      options:
+        - iOS camera/capture
+        - USB/usbmux transport
+        - Windows decode/performance
+        - Windows GUI/filters
+        - OBS/virtual camera
+        - Build/sideload/install
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives / Альтернативы

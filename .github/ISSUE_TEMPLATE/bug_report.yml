@@ -1,0 +1,60 @@
+name: Bug report / Сообщить об ошибке
+description: Reproducible IosCam problem / Воспроизводимая проблема IosCam
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Спасибо за отчёт.
+
+        **Do not paste secrets or raw device dumps. Не публикуйте GitHub token/PAT, Apple ID password, IMEI, serial number, phone number, ICCID/IMSI or full `pymobiledevice3 lockdown info`.**
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version / Версия Windows
+      placeholder: Windows 11 24H2 x64
+    validations:
+      required: true
+  - type: input
+    id: iphone
+    attributes:
+      label: iPhone + iOS
+      placeholder: iPhone 12 Pro, iOS 26.6.1
+    validations:
+      required: true
+  - type: dropdown
+    id: usbmux
+    attributes:
+      label: Does `pymobiledevice3 usbmux list` see the iPhone over USB?
+      options:
+        - "Yes / Да"
+        - "No / Нет"
+        - "Not tested / Не проверял"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps / Шаги воспроизведения
+      placeholder: "1. Start IosCam on iPhone\n2. Run start_ioscam.bat\n3. ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result / Ожидаемый результат
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result and sanitized logs / Результат и очищенные логи
+      description: Remove UDID/Identifier, IMEI, serial, phone, tokens and Apple credentials.
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Extra context / Дополнительно
+      description: OBS version, selected lens, filter values, cable/USB hub details, screenshots with personal data hidden.

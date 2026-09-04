@@ -1,109 +1,72 @@
-# IosCam
+<p align="center">
+  <img src="docs/images/ioscam-icon.png" width="150" alt="IosCam icon">
+</p>
 
-Zero-cost iPhone 12 Pro → USB → Windows camera pipeline with a small Windows control panel and an OBS workflow.
+<h1 align="center">IosCam</h1>
+
+<p align="center"><strong>Native iPhone camera → USB → Windows → OBS Virtual Camera.</strong></p>
+
+<p align="center">
+  <a href="README_RU.md">🇷🇺 Русский</a> ·
+  <a href="README_EN.md">🇬🇧 English</a>
+</p>
+
+---
+
+IosCam is a zero-cost open-source webcam pipeline built around a native iOS capture app and a Windows receiver. The iPhone captures **1920×1080 at 60 FPS**, encodes H.264 with VideoToolbox, and sends it over the physical USB cable through Apple usbmux. Windows decodes the stream, applies optional image controls, and exposes a stable **`IosCam Preview`** window that can be captured by OBS and published as **OBS Virtual Camera**.
 
 ```text
-iPhone 12 Pro
-AVCaptureSession 1080p60
-        ↓
+iPhone camera
+    ↓  AVCaptureSession 1080p60
 VideoToolbox H.264
-        ↓
-TCP :2345 over Apple usbmux / Lightning
-        ↓
-Windows + pymobiledevice3
-        ↓
-PyAV decode → Windows filters → IosCam Preview
-        ↓
-OBS Window Capture → OBS Virtual Camera → browser / chat site
+    ↓
+TCP :2345 over USB / Apple usbmux
+    ↓
+IosCam Windows receiver
+    ↓
+Windows filters + IosCam Preview
+    ↓
+OBS Window Capture
+    ↓
+OBS Virtual Camera
+    ↓
+Browser / Discord / chat site / video app
 ```
 
-## Daily use
+### Current features
 
-On the iPhone:
+- Native iOS capture and hardware H.264 encoding
+- USB-only runtime transport; Wi-Fi is not required for video
+- 1080p60 target mode
+- Rear Wide, Ultra Wide, Telephoto and Front camera selection where supported
+- Zoom, exposure bias, autofocus and manual focus control from Windows
+- Blur, brightness, contrast, saturation, sharpness, mirror and rotation on Windows
+- Live FPS / bitrate / queue / drop / receiver-latency telemetry
+- One-click Windows launcher: `start_ioscam.bat`
+- OBS-friendly stable preview window title: `IosCam Preview`
+- Free unsigned IPA build through GitHub Actions
 
-1. Keep Developer Mode enabled.
-2. Open **IosCam**.
-3. Tap **Start Camera** and leave the app in the foreground.
+### Tested configuration
 
-On Windows, double-click:
+The project was developed and end-to-end tested with **iPhone 12 Pro**, **iOS 26.6.1**, **Windows 11 x64**, a data-capable Lightning cable, Python 3.12+, Apple Mobile Device Service, and OBS Studio. The Xcode project has an iOS 17.0 deployment target, but other device/model combinations have not all been validated.
 
-```text
-start_ioscam.bat
-```
+> This is an experimental creator tool, not an Apple/OBS product. Camera availability and 1080p60 support depend on the physical iPhone model.
 
-For IosCam + best-effort automatic OBS launch:
+### Documentation
 
-```text
-start_ioscam_obs.bat
-```
+| Language | Overview | Full install | Troubleshooting |
+|---|---|---|---|
+| 🇷🇺 Русский | [README_RU.md](README_RU.md) | [docs/INSTALL_RU.md](docs/INSTALL_RU.md) | [docs/TROUBLESHOOTING_RU.md](docs/TROUBLESHOOTING_RU.md) |
+| 🇬🇧 English | [README_EN.md](README_EN.md) | [docs/INSTALL_EN.md](docs/INSTALL_EN.md) | [docs/TROUBLESHOOTING_EN.md](docs/TROUBLESHOOTING_EN.md) |
 
-There is no need to activate `.venv` manually. On first run the BAT file calls `scripts/setup_windows.ps1` and creates/repairs the environment.
+### Project status / limitations
 
-## Windows controls
+- Video only; microphone/audio transport is not implemented yet.
+- Current capture target is 1080p60, not 4K60.
+- Blur is whole-frame blur, not person/background segmentation.
+- The latency counter is receiver-side RX→screen latency, not full glass-to-glass latency.
+- A receiver that attaches between H.264 keyframes can briefly print decode warnings before the next clean keyframe sync. Persistent decode errors are covered in troubleshooting.
 
-The control panel can change these iPhone camera settings live over the same USB TCP connection:
+### License
 
-- Rear Wide 1×
-- Rear Ultra Wide 0.5×
-- Rear Telephoto
-- Front camera
-- Zoom
-- Exposure bias
-- Autofocus on/off
-- Manual focus position
-
-These image operations are applied on Windows after decode:
-
-- Blur
-- Brightness
-- Contrast
-- Saturation
-- Sharpness
-- Mirror
-- Rotation 0/90/180/270
-- Stats overlay
-- Fullscreen preview
-
-The preview window has a stable title: **`IosCam Preview`**.
-
-## OBS setup — one time
-
-1. Start `start_ioscam.bat` and make sure `IosCam Preview` is showing video.
-2. Open OBS.
-3. Add **Source → Window Capture**.
-4. Select the **IosCam Preview** window.
-5. Fit/crop it in your scene.
-6. In OBS press **Start Virtual Camera**.
-7. In the browser/chat site choose **OBS Virtual Camera** as the camera.
-
-You do not need a custom Windows camera driver for this workflow.
-
-## USB prerequisites
-
-- Standalone iTunes / Apple Mobile Device Support installed.
-- `Apple Mobile Device Service` running.
-- iPhone unlocked and trusted by the PC.
-- Data-capable Lightning cable.
-
-Quick test:
-
-```powershell
-C:\ioscam\.venv\Scripts\python.exe -m pymobiledevice3 usbmux list
-```
-
-The device should show `ConnectionType: USB`.
-
-## Build updated iOS IPA for 0 ₽
-
-Push the project to the public GitHub repo. **Actions → Build unsigned iOS IPA** compiles it on a macOS runner. Download the `IosCam-unsigned` artifact, sign/install locally with Sideloadly, then trust the development profile on the iPhone.
-
-No Apple passwords, PATs or signing secrets belong in the repository.
-
-## Tests
-
-```powershell
-C:\ioscam\.venv\Scripts\python.exe -m pip install -r receiver\requirements-dev.txt
-C:\ioscam\.venv\Scripts\python.exe -m pytest -q
-```
-
-Protocol notes: `docs/protocol.md`.
+IosCam project source is released under the [MIT License](LICENSE). Third-party dependencies keep their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
