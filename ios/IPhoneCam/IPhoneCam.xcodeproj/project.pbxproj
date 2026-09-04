@@ -1,0 +1,232 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A00000000000000000000001 /* IPhoneCamApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000001 /* IPhoneCamApp.swift */; };
+		A00000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000002 /* ContentView.swift */; };
+		A00000000000000000000003 /* CameraStreamerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000003 /* CameraStreamerModel.swift */; };
+		A00000000000000000000004 /* CameraCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000004 /* CameraCapture.swift */; };
+		A00000000000000000000005 /* H264Encoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000005 /* H264Encoder.swift */; };
+		A00000000000000000000006 /* AVCCAnnexBConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* AVCCAnnexBConverter.swift */; };
+		A00000000000000000000007 /* PacketProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000007 /* PacketProtocol.swift */; };
+		A00000000000000000000008 /* StreamServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* StreamServer.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B00000000000000000000001 /* IPhoneCamApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPhoneCamApp.swift; sourceTree = "<group>"; };
+		B00000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B00000000000000000000003 /* CameraStreamerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraStreamerModel.swift; sourceTree = "<group>"; };
+		B00000000000000000000004 /* CameraCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCapture.swift; sourceTree = "<group>"; };
+		B00000000000000000000005 /* H264Encoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = H264Encoder.swift; sourceTree = "<group>"; };
+		B00000000000000000000006 /* AVCCAnnexBConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVCCAnnexBConverter.swift; sourceTree = "<group>"; };
+		B00000000000000000000007 /* PacketProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketProtocol.swift; sourceTree = "<group>"; };
+		B00000000000000000000008 /* StreamServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamServer.swift; sourceTree = "<group>"; };
+		B00000000000000000000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B0000000000000000000000A /* IPhoneCam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPhoneCam.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C00000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D00000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				D00000000000000000000002 /* App */,
+				D00000000000000000000003 /* Camera */,
+				D00000000000000000000004 /* Network */,
+				B00000000000000000000009 /* Info.plist */,
+				D00000000000000000000005 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D00000000000000000000002 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000001 /* IPhoneCamApp.swift */,
+				B00000000000000000000002 /* ContentView.swift */,
+				B00000000000000000000003 /* CameraStreamerModel.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000003 /* Camera */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000004 /* CameraCapture.swift */,
+				B00000000000000000000005 /* H264Encoder.swift */,
+				B00000000000000000000006 /* AVCCAnnexBConverter.swift */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000004 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				B00000000000000000000007 /* PacketProtocol.swift */,
+				B00000000000000000000008 /* StreamServer.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		D00000000000000000000005 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B0000000000000000000000A /* IPhoneCam.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E00000000000000000000001 /* IPhoneCam */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F00000000000000000000002 /* Build configuration list for PBXNativeTarget "IPhoneCam" */;
+			buildPhases = (
+				C00000000000000000000003 /* Sources */,
+				C00000000000000000000001 /* Frameworks */,
+				C00000000000000000000002 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = ();
+			name = IPhoneCam;
+			productName = IPhoneCam;
+			productReference = B0000000000000000000000A /* IPhoneCam.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E00000000000000000000002 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = { E00000000000000000000001 = { CreatedOnToolsVersion = 26.0; }; };
+			};
+			buildConfigurationList = F00000000000000000000001 /* Build configuration list for PBXProject "IPhoneCam" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base);
+			mainGroup = D00000000000000000000001;
+			productRefGroup = D00000000000000000000005 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (E00000000000000000000001 /* IPhoneCam */);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C00000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C00000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000001 /* IPhoneCamApp.swift in Sources */,
+				A00000000000000000000002 /* ContentView.swift in Sources */,
+				A00000000000000000000003 /* CameraStreamerModel.swift in Sources */,
+				A00000000000000000000004 /* CameraCapture.swift in Sources */,
+				A00000000000000000000005 /* H264Encoder.swift in Sources */,
+				A00000000000000000000006 /* AVCCAnnexBConverter.swift in Sources */,
+				A00000000000000000000007 /* PacketProtocol.swift in Sources */,
+				A00000000000000000000008 /* StreamServer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F10000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F10000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F10000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.local.IPhoneCam;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		F10000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.local.IPhoneCam;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F00000000000000000000001 /* Build configuration list for PBXProject "IPhoneCam" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (F10000000000000000000001, F10000000000000000000002);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F00000000000000000000002 /* Build configuration list for PBXNativeTarget "IPhoneCam" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (F10000000000000000000003, F10000000000000000000004);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E00000000000000000000002 /* Project object */;
+}

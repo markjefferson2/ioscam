@@ -1,0 +1,79 @@
+name: Build unsigned iOS IPA
+
+on:
+  push:
+    branches: ["master", "main", "feature/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios:
+    runs-on: macos-26
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode 26.6
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo xcode-select -s /Applications/Xcode_26.6.app/Contents/Developer
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Inspect project
+        shell: bash
+        run: |
+          set -euxo pipefail
+          xcodebuild -project ios/IPhoneCam/IPhoneCam.xcodeproj -list
+
+      - name: Build unsigned device app
+        shell: bash
+        run: |
+          set -euxo pipefail
+          BUILD_ROOT="$RUNNER_TEMP/iphonecam-build"
+          xcodebuild \
+            -project ios/IPhoneCam/IPhoneCam.xcodeproj \
+            -target IPhoneCam \
+            -configuration Release \
+            -sdk iphoneos \
+            SYMROOT="$BUILD_ROOT" \
+            OBJROOT="$RUNNER_TEMP/iphonecam-obj" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+
+          APP="$BUILD_ROOT/Release-iphoneos/IPhoneCam.app"
+          test -d "$APP"
+          echo "APP_PATH=$APP" >> "$GITHUB_ENV"
+
+      - name: Package unsigned IPA
+        shell: bash
+        run: |
+          set -euxo pipefail
+          PACKAGE_DIR="$RUNNER_TEMP/iphonecam-package"
+          rm -rf "$PACKAGE_DIR"
+          mkdir -p "$PACKAGE_DIR/Payload"
+          cp -R "$APP_PATH" "$PACKAGE_DIR/Payload/IPhoneCam.app"
+          (
+            cd "$PACKAGE_DIR"
+            /usr/bin/zip -qry "$GITHUB_WORKSPACE/IPhoneCam-unsigned.ipa" Payload
+          )
+          unzip -l "$GITHUB_WORKSPACE/IPhoneCam-unsigned.ipa" | head -40
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: IPhoneCam-unsigned
+          path: IPhoneCam-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 7
