@@ -96,9 +96,16 @@ final class H264Encoder {
     func start() throws {
         guard compressionSession == nil else { return }
 
-        let encoderSpecification: CFDictionary = [
-            kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder: kCFBooleanTrue as Any
-        ] as CFDictionary
+        let encoderSpecification: CFDictionary?
+        if #available(iOS 17.4, *) {
+            encoderSpecification = [
+                kVTVideoEncoderSpecification_RequireHardwareAcceleratedVideoEncoder: kCFBooleanTrue as Any
+            ] as CFDictionary
+        } else {
+            // iOS < 17.4 does not expose the "require hardware" specification key.
+            // Passing nil keeps the encoder usable; VideoToolbox can still choose hardware.
+            encoderSpecification = nil
+        }
 
         var session: VTCompressionSession?
         let createStatus = VTCompressionSessionCreate(
