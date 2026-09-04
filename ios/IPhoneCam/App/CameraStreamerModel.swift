@@ -31,6 +31,9 @@ final class CameraStreamerModel: ObservableObject {
     )
 
     init() {
+        camera.onError = { [weak self] error in
+            Task { @MainActor in self?.status = .error(error.localizedDescription) }
+        }
         camera.onSampleBuffer = { [weak self] sampleBuffer in
             self?.encoder.encode(sampleBuffer: sampleBuffer)
         }
@@ -46,6 +49,9 @@ final class CameraStreamerModel: ObservableObject {
             Task { @MainActor in
                 self?.status = .error(error.localizedDescription)
             }
+        }
+        server.onControlCommand = { [weak self] command in
+            self?.camera.apply(control: command)
         }
         server.onStateChange = { [weak self] serverState in
             Task { @MainActor in

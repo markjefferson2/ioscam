@@ -9,3 +9,4 @@ build/
 *.xcuserstate
 xcuserdata/
 IPhoneCam-unsigned.ipa
+.worktrees/

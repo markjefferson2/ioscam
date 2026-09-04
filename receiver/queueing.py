@@ -20,23 +20,34 @@ class KeyframeAwareVideoQueue:
             raise ValueError("maxsize must be >= 1")
         self._queue: asyncio.Queue[Packet] = asyncio.Queue(maxsize=maxsize)
         self._recovering = False
+        self._dropped_total = 0
 
     @property
     def recovering(self) -> bool:
         return self._recovering
+
+    @property
+    def qsize(self) -> int:
+        return self._queue.qsize()
+
+    @property
+    def dropped_total(self) -> int:
+        return self._dropped_total
 
     async def put(self, packet: Packet) -> bool:
         is_keyframe = bool(packet.flags & VIDEO_FLAG_KEYFRAME)
 
         if self._recovering:
             if not is_keyframe:
+                self._dropped_total += 1
                 return False
             self._recovering = False
             self._queue.put_nowait(packet)
             return True
 
         if self._queue.full():
-            self._drain()
+            dropped = self._drain()
+            self._dropped_total += dropped + 1
             self._recovering = True
             if not is_keyframe:
                 return False
@@ -50,12 +61,14 @@ class KeyframeAwareVideoQueue:
     async def get(self) -> Packet:
         return await self._queue.get()
 
-    def _drain(self) -> None:
+    def _drain(self) -> int:
+        count = 0
         while True:
             try:
                 self._queue.get_nowait()
+                count += 1
             except asyncio.QueueEmpty:
-                return
+                return count
 
 
 class LatestFrameMailbox(Generic[T]):

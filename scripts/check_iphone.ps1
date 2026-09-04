@@ -10,7 +10,7 @@ if (-not (Test-Path $Python)) {
     throw 'Missing .venv. Run .\scripts\setup_windows.ps1 first.'
 }
 
-Write-Host '[IPhoneCam] Checking Apple Mobile Device Service...'
+Write-Host '[IosCam] Checking Apple Mobile Device Service...'
 $AppleService = Get-Service -ErrorAction SilentlyContinue | Where-Object {
     $_.DisplayName -like '*Apple Mobile Device*' -or $_.Name -like '*Apple*Mobile*Device*'
 } | Select-Object -First 1
@@ -22,7 +22,7 @@ if ($AppleService.Status -ne 'Running') {
 }
 Write-Host "  $($AppleService.DisplayName): Running"
 
-Write-Host '[IPhoneCam] Looking for a USB iPhone via usbmux...'
+Write-Host '[IosCam] Looking for a USB iPhone via usbmux...'
 $Probe = @'
 import asyncio
 from pymobiledevice3.usbmux import list_devices
@@ -45,4 +45,4 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-Write-Host '[IPhoneCam] USB transport is ready.'
+Write-Host '[IosCam] USB transport is ready.'

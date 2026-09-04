@@ -1,6 +1,6 @@
 # ICAM protocol v1
 
-ICAM is the deliberately small protocol between the native iPhone app and the Windows receiver. It runs over one TCP connection on device port `2345`. The Windows client reaches that port directly through Apple usbmux over the physical USB cable; no Wi‑Fi forwarding is required.
+ICAM is the deliberately small protocol between the native iPhone app and the Windows receiver. It runs over one full-duplex TCP connection on device port `2345`. The Windows client reaches that port directly through Apple usbmux over the physical USB cable; no Wi‑Fi forwarding is required.
 
 ## Header
 
@@ -66,3 +66,16 @@ There are two bounded points:
 2. Windows has a small encoded queue. On overflow it clears the queue and waits for the next keyframe. The decoded preview is a one-frame mailbox where a newer decoded frame replaces an old unconsumed frame.
 
 This intentionally prefers a visible frame drop/recovery over latency that grows for seconds.
+
+
+## Windows → iPhone control channel
+
+The TCP connection is full duplex. The device→Windows direction remains ICAM-framed H.264 binary. The Windows→device direction is intentionally simpler: newline-delimited UTF-8 JSON, one complete camera state per line.
+
+Example:
+
+```json
+{"camera":"rearWide","zoom":1.0,"exposureBias":0.0,"autofocus":true,"focusPosition":0.5}
+```
+
+`camera` is one of `rearWide`, `rearUltraWide`, `rearTelephoto`, or `front`. The iPhone clamps zoom, exposure bias and manual focus to the selected AVCaptureDevice's supported ranges. Sending complete state instead of deltas makes reconnect behavior deterministic.

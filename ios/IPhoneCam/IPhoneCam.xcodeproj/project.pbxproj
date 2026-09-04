@@ -14,6 +14,8 @@
 		A00000000000000000000006 /* AVCCAnnexBConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000006 /* AVCCAnnexBConverter.swift */; };
 		A00000000000000000000007 /* PacketProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000007 /* PacketProtocol.swift */; };
 		A00000000000000000000008 /* StreamServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00000000000000000000008 /* StreamServer.swift */; };
+		A00000000000000000000009 /* CameraControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000B /* CameraControl.swift */; };
+		A0000000000000000000000A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0000000000000000000000C /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +29,8 @@
 		B00000000000000000000008 /* StreamServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreamServer.swift; sourceTree = "<group>"; };
 		B00000000000000000000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B0000000000000000000000A /* IPhoneCam.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPhoneCam.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0000000000000000000000B /* CameraControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraControl.swift; sourceTree = "<group>"; };
+		B0000000000000000000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +50,7 @@
 				D00000000000000000000003 /* Camera */,
 				D00000000000000000000004 /* Network */,
 				B00000000000000000000009 /* Info.plist */,
+				B0000000000000000000000C /* Assets.xcassets */,
 				D00000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -66,6 +71,7 @@
 				B00000000000000000000004 /* CameraCapture.swift */,
 				B00000000000000000000005 /* H264Encoder.swift */,
 				B00000000000000000000006 /* AVCCAnnexBConverter.swift */,
+				B0000000000000000000000B /* CameraControl.swift */,
 			);
 			path = Camera;
 			sourceTree = "<group>";
@@ -133,7 +139,9 @@
 		C00000000000000000000002 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
-			files = ();
+			files = (
+				A0000000000000000000000A /* Assets.xcassets in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
@@ -151,6 +159,7 @@
 				A00000000000000000000006 /* AVCCAnnexBConverter.swift in Sources */,
 				A00000000000000000000007 /* PacketProtocol.swift in Sources */,
 				A00000000000000000000008 /* StreamServer.swift in Sources */,
+				A00000000000000000000009 /* CameraControl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +185,7 @@
 		F10000000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
@@ -195,6 +205,7 @@
 		F10000000000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;

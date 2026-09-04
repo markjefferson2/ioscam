@@ -46,3 +46,20 @@ def test_latest_frame_mailbox_replaces_unconsumed_frame():
         return await asyncio.wait_for(mailbox.get(), timeout=0.1)
 
     assert asyncio.run(scenario()) == "new"
+
+
+def test_video_queue_tracks_depth_and_dropped_packets():
+    async def scenario():
+        queue = KeyframeAwareVideoQueue(maxsize=2)
+        await queue.put(video(1, keyframe=True))
+        await queue.put(video(2))
+        assert queue.qsize == 2
+        await queue.put(video(3))
+        assert queue.dropped_total == 3
+        assert queue.qsize == 0
+        await queue.put(video(4))
+        assert queue.dropped_total == 4
+        await queue.put(video(5, keyframe=True))
+        return queue.qsize, queue.dropped_total
+
+    assert asyncio.run(scenario()) == (1, 4)

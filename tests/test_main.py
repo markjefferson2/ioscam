@@ -64,3 +64,17 @@ def test_receiver_loop_propagates_missing_apple_support_as_fatal():
 
     import pytest
     asyncio.run(scenario())
+
+
+def test_parser_accepts_rotation_virtual_camera_and_overlay_controls():
+    from receiver.main import build_parser
+
+    args = build_parser().parse_args([
+        "--rotate", "270",
+        "--virtual-camera",
+        "--no-overlay",
+    ])
+
+    assert args.rotate == 270
+    assert args.virtual_camera is True
+    assert args.no_overlay is True

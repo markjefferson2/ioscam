@@ -66,14 +66,14 @@ jobs:
           cp -R "$APP_PATH" "$PACKAGE_DIR/Payload/IPhoneCam.app"
           (
             cd "$PACKAGE_DIR"
-            /usr/bin/zip -qry "$GITHUB_WORKSPACE/IPhoneCam-unsigned.ipa" Payload
+            /usr/bin/zip -qry "$GITHUB_WORKSPACE/IosCam-unsigned.ipa" Payload
           )
-          unzip -l "$GITHUB_WORKSPACE/IPhoneCam-unsigned.ipa" | head -40
+          unzip -l "$GITHUB_WORKSPACE/IosCam-unsigned.ipa" | head -40
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: IPhoneCam-unsigned
-          path: IPhoneCam-unsigned.ipa
+          name: IosCam-unsigned
+          path: IosCam-unsigned.ipa
           if-no-files-found: error
           retention-days: 7

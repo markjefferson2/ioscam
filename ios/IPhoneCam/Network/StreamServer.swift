@@ -10,6 +10,7 @@ enum StreamServerState: Equatable {
 
 final class StreamServer {
     var onStateChange: ((StreamServerState) -> Void)?
+    var onControlCommand: ((CameraControlCommand) -> Void)?
 
     private let port: UInt16
     private let metadata: StreamHello
@@ -20,6 +21,7 @@ final class StreamServer {
     private var connectionReady = false
     private var sendInFlight = false
     private var pendingVideoPacket: Data?
+    private var controlBuffer = Data()
 
     init(port: UInt16 = 2345, metadata: StreamHello) {
         self.port = port
@@ -93,6 +95,7 @@ final class StreamServer {
         connectionReady = false
         sendInFlight = false
         pendingVideoPacket = nil
+        controlBuffer.removeAll(keepingCapacity: true)
 
         newConnection.stateUpdateHandler = { [weak self, weak newConnection] state in
             guard let self, let newConnection else { return }
@@ -103,6 +106,7 @@ final class StreamServer {
                     self.connectionReady = true
                     self.emit(.connected)
                     self.sendHelloLocked()
+                    self.receiveControlLocked(on: newConnection)
                 case .failed(let error):
                     self.handleDisconnectLocked(message: "Client connection failed: \(error.localizedDescription)")
                 case .cancelled:
@@ -154,12 +158,50 @@ final class StreamServer {
         })
     }
 
+
+    private func receiveControlLocked(on connection: NWConnection) {
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 16 * 1024) { [weak self, weak connection] content, _, isComplete, error in
+            guard let self, let connection else { return }
+            self.queue.async {
+                guard self.connection === connection else { return }
+                if let content, !content.isEmpty {
+                    self.controlBuffer.append(content)
+                    self.consumeControlLinesLocked()
+                }
+                if let error {
+                    self.handleDisconnectLocked(message: "Control receive failed: \(error.localizedDescription)")
+                    return
+                }
+                if isComplete {
+                    self.handleDisconnectLocked(message: nil)
+                    return
+                }
+                self.receiveControlLocked(on: connection)
+            }
+        }
+    }
+
+    private func consumeControlLinesLocked() {
+        while let newline = controlBuffer.firstIndex(of: 0x0A) {
+            let line = Data(controlBuffer[..<newline])
+            controlBuffer.removeSubrange(...newline)
+            guard !line.isEmpty else { continue }
+            do {
+                let command = try JSONDecoder().decode(CameraControlCommand.self, from: line)
+                onControlCommand?(command)
+            } catch {
+                emit(.error("Control JSON rejected: \(error.localizedDescription)"))
+            }
+        }
+    }
+
     private func handleDisconnectLocked(message: String?) {
         connection?.cancel()
         connection = nil
         connectionReady = false
         sendInFlight = false
         pendingVideoPacket = nil
+        controlBuffer.removeAll(keepingCapacity: true)
         if let message {
             emit(.error(message))
         }
@@ -176,6 +218,7 @@ final class StreamServer {
         connectionReady = false
         sendInFlight = false
         pendingVideoPacket = nil
+        controlBuffer.removeAll(keepingCapacity: true)
         emit(.stopped)
     }
 
