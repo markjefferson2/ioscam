@@ -253,3 +253,19 @@ C:\ioscam\.venv\Scripts\python.exe -m pytest -q
 ```
 
 Next: [TROUBLESHOOTING_EN.md](TROUBLESHOOTING_EN.md).
+
+## Optional: Native Media Foundation mode (Windows 11)
+
+For the second output mode run once:
+
+```text
+C:\ioscam\install_native_camera.bat
+```
+
+If no local installer exists, the script downloads the official OBS2MF release installer from `mbales-tech/OBS2MF`. After the UAC install, launch:
+
+```text
+C:\ioscam\start_ioscam_native.bat
+```
+
+Requires Windows 11 build 22000+ and the OBS Virtual Camera driver (normally installed with OBS Studio).

@@ -201,3 +201,21 @@ Before posting an Issue/chat, **never expose**:
 - full `lockdown info`
 
 `pymobiledevice3 lockdown info` includes many private device fields. `usbmux list` is usually enough; even there, you may redact `Identifier/UniqueDeviceID` before posting.
+
+## Horizontal/white strip in the OBS preview
+
+The new `start_ioscam_obs.bat` uses a pygame/SDL double-buffered preview instead of the OpenCV Win32 window. The receiver also crops possible H.264 coded padding (for example 1088 coded lines down to the announced 1080). If the strip remains, run:
+
+```text
+C:\ioscam\start_ioscam.bat --debug-frames
+```
+
+and compare `debug_frames\01-decoded-before-filters.png` with `02-processed-output.png`. If both files are clean, the artifact is downstream in Window Capture/compositing.
+
+## Native camera does not appear
+
+1. Verify Windows 11 build 22000+.
+2. Run `install_native_camera.bat` and accept UAC.
+3. Verify `%ProgramFiles%\OBS2MF\Vcam.Broker.exe` exists.
+4. Do not start OBS Virtual Camera from the OBS UI at the same time as `start_ioscam_native.bat`; pyvirtualcam needs that driver.
+5. Look for `OBS2MF (Windows Virtual Camera)` in the target app.

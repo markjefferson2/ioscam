@@ -1,3 +1,5 @@
 pymobiledevice3
 av
 opencv-python
+pygame
+pyvirtualcam

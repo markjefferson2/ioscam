@@ -8,10 +8,10 @@ from dataclasses import dataclass
 from typing import Callable
 
 from .control import ControlChannel
-from .decoder import H264Decoder
+from .decoder import H264Decoder, ResilientH264Decoder
 from .filters import FilterState
-from .preview import NullPreview, OpenCVPreview, PreviewFrame
-from .protocol import PacketType, ProtocolError, read_packet
+from .preview import FrameDiagnostics, NullPreview, PreviewFrame, VirtualCameraSink, create_preview
+from .protocol import PacketType, ProtocolError, VIDEO_FLAG_KEYFRAME, read_packet
 from .queueing import KeyframeAwareVideoQueue, LatestFrameMailbox
 from .stats import StreamStats
 
@@ -66,6 +66,11 @@ class StreamSession:
         stats: StreamStats | None = None,
         preview_title: str = "IosCam Preview",
         metadata_callback: Callable[[StreamMetadata], None] | None = None,
+        preview_backend: str = "auto",
+        virtual_camera_enabled: bool = False,
+        virtual_camera_width: int = 1280,
+        virtual_camera_height: int = 720,
+        debug_frames_dir: str | None = None,
     ):
         self.preview_enabled = preview_enabled
         self.encoded_queue_size = encoded_queue_size
@@ -75,6 +80,11 @@ class StreamSession:
         self.stats = stats or StreamStats()
         self.preview_title = preview_title
         self.metadata_callback = metadata_callback
+        self.preview_backend = preview_backend
+        self.virtual_camera_enabled = virtual_camera_enabled
+        self.virtual_camera_width = virtual_camera_width
+        self.virtual_camera_height = virtual_camera_height
+        self.debug_frames_dir = debug_frames_dir
 
     async def run_socket(self, sock: socket.socket) -> StreamMetadata:
         reader, writer = await asyncio.open_connection(sock=sock)
@@ -101,12 +111,39 @@ class StreamSession:
         metadata = parse_hello_payload(first.payload)
         if self.metadata_callback is not None:
             self.metadata_callback(metadata)
-        decoder = self.decoder_factory()
-        preview = (
-            OpenCVPreview(self.preview_title, filters=self.filter_state, stats=self.stats)
-            if self.preview_enabled
-            else NullPreview()
-        )
+        decoder = ResilientH264Decoder(self.decoder_factory)
+        virtual_sink = None
+        if self.virtual_camera_enabled:
+            virtual_sink = VirtualCameraSink(
+                width=self.virtual_camera_width,
+                height=self.virtual_camera_height,
+                fps=metadata.fps,
+                backend="obs",
+                fit_output=True,
+            )
+            print(f"[IosCam] Direct virtual-camera feeder: {virtual_sink.device}")
+
+        diagnostics = FrameDiagnostics(self.debug_frames_dir) if self.debug_frames_dir else None
+        if self.preview_enabled:
+            preview = create_preview(
+                title=self.preview_title,
+                backend=self.preview_backend,
+                filters=self.filter_state,
+                stats=self.stats,
+                expected_width=metadata.width,
+                expected_height=metadata.height,
+                pixel_sink=virtual_sink,
+                diagnostics=diagnostics,
+            )
+        else:
+            preview = NullPreview(
+                filters=self.filter_state,
+                stats=self.stats,
+                expected_width=metadata.width,
+                expected_height=metadata.height,
+                pixel_sink=virtual_sink,
+                diagnostics=diagnostics,
+            )
         encoded = KeyframeAwareVideoQueue(maxsize=self.encoded_queue_size)
         decoded = LatestFrameMailbox()
         receive_times: dict[int, int] = {}
@@ -115,8 +152,7 @@ class StreamSession:
             asyncio.create_task(self._ingest_loop(reader, encoded, receive_times), name="icam-ingest"),
             asyncio.create_task(self._decode_loop(encoded, decoded, decoder, receive_times), name="icam-decode"),
         ]
-        if self.preview_enabled:
-            tasks.append(asyncio.create_task(self._preview_loop(decoded, preview), name="icam-preview"))
+        tasks.append(asyncio.create_task(self._preview_loop(decoded, preview), name="icam-present"))
         if writer is not None and self.control_channel is not None:
             tasks.append(asyncio.create_task(self._control_loop(writer), name="icam-control"))
 
@@ -134,6 +170,8 @@ class StreamSession:
                     task.cancel()
             await asyncio.gather(*tasks, return_exceptions=True)
             preview.close()
+            if virtual_sink is not None:
+                virtual_sink.close()
 
         return metadata
 
@@ -180,10 +218,10 @@ class StreamSession:
             packet = await encoded.get()
             received_ns = receive_times.pop(packet.sequence, time.perf_counter_ns())
             start_ns = time.perf_counter_ns()
-            try:
-                frames = decoder.decode(packet.payload)
-            except Exception as exc:
-                raise StreamSessionError(f"H.264 decode failed at sequence {packet.sequence}: {exc}") from exc
+            frames = decoder.decode(
+                packet.payload,
+                is_keyframe=bool(packet.flags & VIDEO_FLAG_KEYFRAME),
+            )
             decode_ms = (time.perf_counter_ns() - start_ns) / 1_000_000
             for frame in frames:
                 decoded.put(PreviewFrame(frame=frame, received_ns=received_ns, decode_ms=decode_ms))

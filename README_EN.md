@@ -60,10 +60,10 @@ After one-time setup:
 3. On Windows run:
 
 ```text
-C:\ioscam\start_ioscam.bat
+C:\ioscam\start_ioscam_obs.bat
 ```
 
-The BAT uses the local `.venv`, repairs missing dependencies if needed, and launches the IosCam control panel. If OBS is installed in a standard location, the launcher also attempts to open OBS.
+For a plain preview without auto-launching OBS, use `start_ioscam.bat`. The BAT uses the local `.venv`, repairs missing dependencies if needed, and launches the IosCam control panel.
 
 4. In OBS, create a **Window Capture** for **`IosCam Preview`** once.
 5. Click **Start Virtual Camera**.
@@ -100,6 +100,34 @@ The iPhone should appear with `ConnectionType: USB`.
 If a recent green Actions run has an **IosCam-unsigned** artifact, download it. If it has expired, fork the repository, enable Actions, and manually run **Build unsigned iOS IPA**.
 
 Sign/install the resulting IPA locally with Sideloadly and your own Apple ID. A free Apple ID normally signs sideloaded apps for 7 days; Sideloadly also provides an auto-refresh option.
+
+## Two Windows output modes
+
+### 1. OBS mode — recommended for editing and scenes
+
+Run:
+
+```text
+C:\ioscam\start_ioscam_obs.bat
+```
+
+IosCam uses a double-buffered preview to avoid the horizontal tearing/seam that OpenCV windows can expose to OBS Window Capture. The path is `IosCam Preview → OBS → OBS Virtual Camera`.
+
+### 2. Native Media Foundation compatibility mode — Windows 11
+
+Run once:
+
+```text
+C:\ioscam\install_native_camera.bat
+```
+
+The installer script first looks for a local `OBS2MF-Setup-*.exe`; if none is present it downloads the latest `mbales-tech/OBS2MF` GitHub release and starts the installer with UAC. Daily use:
+
+```text
+C:\ioscam\start_ioscam_native.bat
+```
+
+OBS Studio's UI is not needed in this mode. IosCam writes the processed frames into the installed OBS Virtual Camera driver with `pyvirtualcam`, and OBS2MF republishes them through Windows 11 `MFCreateVirtualCamera`. Browsers enumerate it as **`OBS2MF (Windows Virtual Camera)`**. It remains a software/virtual camera and does not spoof physical hardware identity.
 
 ## OBS
 
@@ -142,11 +170,11 @@ Current scope:
 - 1080p60 H.264
 - no audio transport
 - no 4K60 yet
-- no native Windows virtual-camera driver
-- OBS is the virtual-camera layer
+- optional Windows 11 Media Foundation compatibility mode is included
+- OBS mode remains the editable path; native mode uses the OBS camera driver only as a local frame handoff, without the OBS Studio UI
 - full-frame blur instead of AI background blur
 
-Natural next steps include cleaner H.264 keyframe resync, 4K60/HEVC, background segmentation, audio, and an optional direct Windows virtual-camera backend.
+Natural next steps include 4K60/HEVC, background segmentation, audio, and a first-party IosCam Media Foundation source that removes the intermediate OBS camera driver.
 
 ## Support
 

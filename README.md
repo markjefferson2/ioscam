@@ -4,7 +4,7 @@
 
 <h1 align="center">IosCam</h1>
 
-<p align="center"><strong>Native iPhone camera → USB → Windows → OBS Virtual Camera.</strong></p>
+<p align="center"><strong>Native iPhone capture → USB → Windows → OBS or Windows 11 Media Foundation camera.</strong></p>
 
 <p align="center">
   <a href="README_RU.md">🇷🇺 Русский</a> ·
@@ -43,6 +43,9 @@ Browser / Discord / chat site / video app
 - Blur, brightness, contrast, saturation, sharpness, mirror and rotation on Windows
 - Live FPS / bitrate / queue / drop / receiver-latency telemetry
 - One-click Windows launcher: `start_ioscam.bat`
+- Two output modes: `start_ioscam_obs.bat` and `start_ioscam_native.bat`
+- Tear-resistant double-buffered preview for OBS Window Capture
+- Optional Windows 11 Media Foundation compatibility camera via OBS2MF
 - OBS-friendly stable preview window title: `IosCam Preview`
 - Free unsigned IPA build through GitHub Actions
 
@@ -65,7 +68,8 @@ The project was developed and end-to-end tested with **iPhone 12 Pro**, **iOS 26
 - Current capture target is 1080p60, not 4K60.
 - Blur is whole-frame blur, not person/background segmentation.
 - The latency counter is receiver-side RX→screen latency, not full glass-to-glass latency.
-- A receiver that attaches between H.264 keyframes can briefly print decode warnings before the next clean keyframe sync. Persistent decode errors are covered in troubleshooting.
+- Receiver startup now waits for a clean H.264 IDR and requests a fresh keyframe when the PC connects.
+- The optional Media Foundation path is still a software/virtual camera; it does not spoof physical hardware identity.
 
 ### License
 

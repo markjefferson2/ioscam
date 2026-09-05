@@ -1,0 +1,66 @@
+name: Build native Media Foundation bridge
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-native-camera.yml'
+      - 'native/**'
+      - 'install_native_camera.bat'
+      - 'scripts/install_native_camera.ps1'
+
+permissions:
+  contents: read
+
+jobs:
+  build-native-bridge:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout IosCam
+        uses: actions/checkout@v4
+
+      - name: Configure MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install build tools
+        shell: powershell
+        run: |
+          choco install nuget.commandline nsis -y --no-progress
+
+      - name: Fetch OBS2MF Media Foundation bridge
+        shell: powershell
+        run: |
+          git clone --depth 1 https://github.com/mbales-tech/OBS2MF.git native\_obs2mf
+          git -C native\_obs2mf rev-parse HEAD | Out-File native\OBS2MF_COMMIT.txt -Encoding ascii
+
+      - name: Restore and build OBS2MF
+        shell: powershell
+        run: |
+          Set-Location native\_obs2mf
+          nuget restore OBS2MF.sln
+          msbuild OBS2MF.sln /t:Build /m /p:Configuration=Release /p:Platform=x64
+
+      - name: Build installer
+        shell: powershell
+        run: |
+          $Nsis = "${env:ProgramFiles(x86)}\NSIS\makensis.exe"
+          if (-not (Test-Path $Nsis)) { throw "NSIS not found at $Nsis" }
+          & $Nsis native\_obs2mf\installer\OBS2MF.nsi
+          if ($LASTEXITCODE -ne 0) { throw "makensis failed: $LASTEXITCODE" }
+
+      - name: Collect artifact
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force native\dist | Out-Null
+          $Installer = Get-ChildItem native\_obs2mf\installer -Filter 'OBS2MF-Setup-*.exe' | Select-Object -First 1
+          if (-not $Installer) { throw 'OBS2MF installer was not produced.' }
+          Copy-Item $Installer.FullName native\dist\
+          Copy-Item native\OBS2MF_COMMIT.txt native\dist\
+
+      - name: Upload native bridge
+        uses: actions/upload-artifact@v4
+        with:
+          name: IosCam-native-bridge
+          path: native/dist/*
+          if-no-files-found: error

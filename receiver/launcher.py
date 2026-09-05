@@ -25,12 +25,18 @@ class ReceiverWorker:
         filters: FilterState,
         stats: StreamStats,
         runtime: RuntimeState,
+        preview_backend: str = "opencv",
+        native_mf: bool = False,
+        debug_frames: bool = False,
     ):
         self.port = port
         self.control = control
         self.filters = filters
         self.stats = stats
         self.runtime = runtime
+        self.preview_backend = preview_backend
+        self.native_mf = native_mf
+        self.debug_frames = debug_frames
         self.thread: threading.Thread | None = None
 
     def start(self) -> None:
@@ -48,6 +54,9 @@ class ReceiverWorker:
                     filter_state=self.filters,
                     stats=self.stats,
                     runtime_state=self.runtime,
+                    preview_backend=self.preview_backend,
+                    virtual_camera_enabled=self.native_mf,
+                    debug_frames_dir="debug_frames" if self.debug_frames else None,
                 )
             )
         except Exception as exc:
@@ -87,6 +96,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="IosCam Windows control panel")
     parser.add_argument("--port", type=int, default=2345)
     parser.add_argument("--launch-obs", action="store_true")
+    parser.add_argument("--native-mf", action="store_true", help="feed OBS Virtual Camera for the Media Foundation bridge")
+    parser.add_argument("--preview-backend", choices=("auto", "pygame", "opencv"), default="auto")
+    parser.add_argument("--debug-frames", action="store_true")
     return parser
 
 
@@ -96,10 +108,19 @@ def main(argv: list[str] | None = None) -> int:
     filters = FilterState(FilterSettings(rotation=90, show_stats=True))
     stats = StreamStats()
     runtime = RuntimeState()
-    worker = ReceiverWorker(port=args.port, control=control, filters=filters, stats=stats, runtime=runtime)
+    worker = ReceiverWorker(
+        port=args.port,
+        control=control,
+        filters=filters,
+        stats=stats,
+        runtime=runtime,
+        preview_backend=args.preview_backend,
+        native_mf=args.native_mf,
+        debug_frames=args.debug_frames,
+    )
     worker.start()
 
-    if args.launch_obs:
+    if args.launch_obs and not args.native_mf:
         launch_obs()
 
     gui = IosCamGUI(

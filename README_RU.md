@@ -60,10 +60,10 @@ OBS Virtual Camera
 3. На Windows запустите:
 
 ```text
-C:\ioscam\start_ioscam.bat
+C:\ioscam\start_ioscam_obs.bat
 ```
 
-BAT сам использует `.venv`, проверяет зависимости и запускает панель IosCam. Если OBS установлен в стандартную папку, launcher также попытается открыть OBS.
+Для обычного preview без автозапуска OBS используйте `start_ioscam.bat`. BAT сам использует `.venv`, проверяет зависимости и запускает панель IosCam.
 
 4. В OBS один раз создайте **Window Capture** для окна **`IosCam Preview`**.
 5. Нажмите **Start Virtual Camera**.
@@ -100,6 +100,34 @@ C:\ioscam\.venv\Scripts\python.exe -m pymobiledevice3 usbmux list
 Если в Actions есть свежий зелёный build, скачайте artifact **IosCam-unsigned**. Если artifact истёк — форкните репозиторий, включите Actions и вручную запустите **Build unsigned iOS IPA**.
 
 Unsigned IPA затем подписывается вашим Apple ID локально через Sideloadly. Бесплатный Apple ID обычно даёт 7-дневную подпись; Sideloadly также предлагает auto-refresh.
+
+## Два режима вывода на Windows
+
+### 1. OBS mode — основной и самый гибкий
+
+Запуск:
+
+```text
+C:\ioscam\start_ioscam_obs.bat
+```
+
+IosCam использует двойную буферизацию preview, поэтому OBS Window Capture не должен ловить горизонтальный tearing/seam. Поток: `IosCam Preview → OBS → OBS Virtual Camera`.
+
+### 2. Native Media Foundation compatibility mode — Windows 11
+
+Один раз запустите от обычного пользователя:
+
+```text
+C:\ioscam\install_native_camera.bat
+```
+
+Скрипт ищет локальный `OBS2MF-Setup-*.exe`, а если его нет — скачивает последний релиз `mbales-tech/OBS2MF` с GitHub и запускает installer с UAC. После установки ежедневный запуск:
+
+```text
+C:\ioscam\start_ioscam_native.bat
+```
+
+В этом режиме OBS Studio UI открывать не нужно. IosCam напрямую пишет обработанные кадры в установленный OBS Virtual Camera driver через `pyvirtualcam`, а OBS2MF публикует их через Windows 11 `MFCreateVirtualCamera`. В браузере камера отображается как **`OBS2MF (Windows Virtual Camera)`**. Это всё равно виртуальная камера и она не маскируется под физическое устройство.
 
 ## OBS
 
@@ -142,11 +170,11 @@ C:\ioscam\.venv\Scripts\python.exe -m pytest -q
 - 1080p60 H.264
 - без аудио
 - без 4K60
-- без native Windows virtual-camera driver
-- OBS используется как virtual-camera layer
+- есть дополнительный Windows 11 Media Foundation compatibility mode
+- OBS mode остаётся основным editable pipeline; native mode использует OBS camera driver как локальный frame handoff, без OBS Studio UI
 - full-frame blur вместо AI background blur
 
-Логичные следующие шаги: более чистая H.264 resync при подключении, 4K60/HEVC, background segmentation, audio и прямой Windows virtual camera backend.
+Логичные следующие шаги: 4K60/HEVC, background segmentation, audio и собственный IosCam Media Foundation source без промежуточного OBS camera driver.
 
 ## Помощь
 

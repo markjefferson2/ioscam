@@ -10,7 +10,7 @@ if not exist "%VENV_PY%" (
     if errorlevel 1 goto :fail
 )
 
-"%VENV_PY%" -c "import av, cv2, pymobiledevice3" >nul 2>&1
+"%VENV_PY%" -c "import av, cv2, pygame, pyvirtualcam, pymobiledevice3" >nul 2>&1
 if errorlevel 1 (
     echo [IosCam] Dependencies are incomplete. Repairing environment...
     powershell -NoProfile -ExecutionPolicy Bypass -File "%CD%\scripts\setup_windows.ps1"
@@ -18,7 +18,7 @@ if errorlevel 1 (
 )
 
 echo [IosCam] Starting control panel...
-"%VENV_PY%" -m receiver.launcher --launch-obs %*
+"%VENV_PY%" -m receiver.launcher %*
 set "RC=%ERRORLEVEL%"
 if not "%RC%"=="0" (
     echo.

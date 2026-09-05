@@ -11,6 +11,7 @@ enum StreamServerState: Equatable {
 final class StreamServer {
     var onStateChange: ((StreamServerState) -> Void)?
     var onControlCommand: ((CameraControlCommand) -> Void)?
+    var onClientConnected: (() -> Void)?
 
     private let port: UInt16
     private let metadata: StreamHello
@@ -20,7 +21,7 @@ final class StreamServer {
     private var connection: NWConnection?
     private var connectionReady = false
     private var sendInFlight = false
-    private var pendingVideoPacket: Data?
+    private var pendingVideoPacket: (data: Data, isKeyframe: Bool)?
     private var controlBuffer = Data()
 
     init(port: UInt16 = 2345, metadata: StreamHello) {
@@ -85,7 +86,7 @@ final class StreamServer {
         }
 
         queue.async { [weak self] in
-            self?.enqueueVideoPacketLocked(packet)
+            self?.enqueueVideoPacketLocked(packet, isKeyframe: isKeyframe)
         }
     }
 
@@ -106,6 +107,7 @@ final class StreamServer {
                     self.connectionReady = true
                     self.emit(.connected)
                     self.sendHelloLocked()
+                    self.onClientConnected?()
                     self.receiveControlLocked(on: newConnection)
                 case .failed(let error):
                     self.handleDisconnectLocked(message: "Client connection failed: \(error.localizedDescription)")
@@ -128,11 +130,14 @@ final class StreamServer {
         }
     }
 
-    private func enqueueVideoPacketLocked(_ packet: Data) {
+    private func enqueueVideoPacketLocked(_ packet: Data, isKeyframe: Bool) {
         guard connectionReady, connection != nil else { return }
         if sendInFlight {
-            // Keep exactly one pending frame; replacing it prevents an unbounded app queue.
-            pendingVideoPacket = packet
+            // Keep one live-edge frame, but never replace a pending IDR with a delta frame.
+            // Losing the first forced IDR would make a fresh PC decoder wait another GOP.
+            if isKeyframe || pendingVideoPacket?.isKeyframe != true {
+                pendingVideoPacket = (packet, isKeyframe)
+            }
             return
         }
         sendLocked(packet)
@@ -152,7 +157,7 @@ final class StreamServer {
                 }
                 if let next = self.pendingVideoPacket {
                     self.pendingVideoPacket = nil
-                    self.sendLocked(next)
+                    self.sendLocked(next.data)
                 }
             }
         })

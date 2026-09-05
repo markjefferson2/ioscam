@@ -53,6 +53,9 @@ final class CameraStreamerModel: ObservableObject {
         server.onControlCommand = { [weak self] command in
             self?.camera.apply(control: command)
         }
+        server.onClientConnected = { [weak self] in
+            self?.encoder.requestKeyframe()
+        }
         server.onStateChange = { [weak self] serverState in
             Task { @MainActor in
                 guard let self else { return }

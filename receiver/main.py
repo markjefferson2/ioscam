@@ -34,6 +34,9 @@ async def receiver_loop(
     filter_state: FilterState | None = None,
     stats: StreamStats | None = None,
     runtime_state: RuntimeState | None = None,
+    preview_backend: str = "opencv",
+    virtual_camera_enabled: bool = False,
+    debug_frames_dir: str | None = None,
 ) -> None:
     if stop_event is None:
         stop_event = asyncio.Event()
@@ -56,6 +59,9 @@ async def receiver_loop(
                 stats=stats,
                 preview_title="IosCam Preview",
                 metadata_callback=runtime_state.set_metadata if runtime_state else None,
+                preview_backend=preview_backend,
+                virtual_camera_enabled=virtual_camera_enabled,
+                debug_frames_dir=debug_frames_dir,
             )
             metadata = await session.run_socket(sock)
             print(f"[IosCam] Stream ended ({metadata.width}x{metadata.height}@{metadata.fps} {metadata.codec})")
@@ -98,7 +104,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--retry-delay", type=float, default=1.0)
     parser.add_argument("--no-preview", action="store_true")
     parser.add_argument("--rotate", type=int, choices=(0, 90, 180, 270), default=90)
-    parser.add_argument("--virtual-camera", action="store_true", help="reserved optional direct virtual-camera mode")
+    parser.add_argument("--virtual-camera", action="store_true", help="feed processed frames directly to OBS Virtual Camera")
+    parser.add_argument("--preview-backend", choices=("auto", "pygame", "opencv"), default="opencv")
+    parser.add_argument("--debug-frames", action="store_true", help="save one decoded and processed frame under debug_frames/")
     parser.add_argument("--no-overlay", action="store_true")
     return parser
 
@@ -113,6 +121,9 @@ async def async_main(argv: list[str] | None = None) -> int:
             preview_enabled=not args.no_preview,
             filter_state=filters,
             control_channel=ControlChannel(),
+            preview_backend=args.preview_backend,
+            virtual_camera_enabled=args.virtual_camera,
+            debug_frames_dir="debug_frames" if args.debug_frames else None,
         )
     except AppleMobileDeviceSupportError as exc:
         print(f"[IosCam] FATAL: {exc}")

@@ -5,7 +5,7 @@ def test_main_batch_uses_venv_python_without_activation():
     text = Path("start_ioscam.bat").read_text(encoding="utf-8")
     assert ".venv\\Scripts\\python.exe" in text
     assert "receiver.launcher" in text
-    assert "--launch-obs" in text
+    assert "--launch-obs" not in text
     assert "Activate.ps1" not in text
     assert "setup_windows.ps1" in text
 
@@ -14,6 +14,12 @@ def test_obs_batch_enables_launch_obs_mode():
     text = Path("start_ioscam_obs.bat").read_text(encoding="utf-8")
     assert "start_ioscam.bat" in text
     assert "--launch-obs" in text
+
+
+def test_native_batch_enables_native_mf_mode():
+    text = Path("start_ioscam_native.bat").read_text(encoding="utf-8")
+    assert "Vcam.Broker.exe" in text
+    assert "--native-mf" in text
 
 
 def test_preview_has_stable_obs_window_title():

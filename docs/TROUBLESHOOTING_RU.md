@@ -203,3 +203,21 @@ Settings → General → VPN & Device Management
 - полные `lockdown info`
 
 Команда `pymobiledevice3 lockdown info` выводит много приватных device fields. Для диагностики обычно достаточно `usbmux list`, а оттуда тоже можно скрыть `Identifier/UniqueDeviceID`.
+
+## Горизонтальная/белая полоса в OBS preview
+
+Новый `start_ioscam_obs.bat` использует pygame/SDL double-buffered preview вместо OpenCV Win32 output. Дополнительно receiver обрезает возможный H.264 coded padding (например 1088 → объявленные 1080 строк). Если полоса осталась, запустите:
+
+```text
+C:\ioscam\start_ioscam.bat --debug-frames
+```
+
+и сравните `debug_frames\01-decoded-before-filters.png` и `02-processed-output.png`. Если оба файла чистые, артефакт находится уже на уровне Window Capture/compositor.
+
+## Native camera не появилась
+
+1. Проверьте Windows 11 build 22000+.
+2. Запустите `install_native_camera.bat` и примите UAC.
+3. Проверьте `%ProgramFiles%\OBS2MF\Vcam.Broker.exe`.
+4. Не запускайте OBS Virtual Camera из OBS одновременно с `start_ioscam_native.bat` — pyvirtualcam должен получить этот driver.
+5. В списке камер ищите `OBS2MF (Windows Virtual Camera)`.

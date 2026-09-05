@@ -81,6 +81,8 @@ final class H264Encoder {
     private let bitrate: Int
     private var compressionSession: VTCompressionSession?
     private var sequence: UInt32 = 0
+    private let keyframeLock = NSLock()
+    private var forceKeyframePending = false
 
     init(width: Int32 = 1920, height: Int32 = 1080, fps: Int32 = 60, bitrate: Int = 12_000_000) {
         self.width = width
@@ -150,6 +152,13 @@ final class H264Encoder {
         compressionSession = nil
     }
 
+
+    func requestKeyframe() {
+        keyframeLock.lock()
+        forceKeyframePending = true
+        keyframeLock.unlock()
+    }
+
     func encode(sampleBuffer: CMSampleBuffer) {
         guard let session = compressionSession else { return }
         guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
@@ -164,13 +173,22 @@ final class H264Encoder {
 
         let context = H264FrameContext(timestampNs: timestampNs, sequence: currentSequence)
         let contextPointer = Unmanaged.passRetained(context).toOpaque()
+
+        keyframeLock.lock()
+        let forceKeyframe = forceKeyframePending
+        forceKeyframePending = false
+        keyframeLock.unlock()
+        let frameProperties: CFDictionary? = forceKeyframe
+            ? [kVTEncodeFrameOptionKey_ForceKeyFrame: kCFBooleanTrue as Any] as CFDictionary
+            : nil
+
         var infoFlags = VTEncodeInfoFlags()
         let status = VTCompressionSessionEncodeFrame(
             session,
             imageBuffer: imageBuffer,
             presentationTimeStamp: presentationTime,
             duration: CMTime(value: 1, timescale: CMTimeScale(fps)),
-            frameProperties: nil,
+            frameProperties: frameProperties,
             sourceFrameRefcon: contextPointer,
             infoFlagsOut: &infoFlags
         )
